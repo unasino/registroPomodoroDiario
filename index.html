@@ -1,368 +1,327 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestor Pomodoro</title>
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <!-- Animate.css -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <!-- Custom CSS -->
-  <style>
-    body {
-      background-color: #f8f9fa;
-      font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Hábitos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #2e003e, #4a148c);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
 
-    .container {
-      max-width: 800px;
-      margin-top: 50px;
-      text-align: center;
-    }
+        .container {
+            background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            transform: scale(1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-    .timer-container {
-      position: relative;
-      width: 200px;
-      height: 200px;
-      margin: 0 auto 20px;
-    }
+        .container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
 
-    .timer {
-      font-size: 3rem;
-      font-weight: bold;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1;
-    }
+        h1 {
+            text-align: center;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff0080, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textGradient 4s infinite linear;
+        }
 
-    .circle {
-      width: 200px;
-      height: 200px;
-      border: 10px solid #007bff;
-      border-radius: 50%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      clip: rect(0, 200px, 200px, 100px);
-    }
+        @keyframes textGradient {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
 
-    .circle.animate {
-      animation: countdown 1s linear infinite;
-    }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
 
-    @keyframes countdown {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
 
-    .btn {
-      font-size: 1.5rem;
-      padding: 10px 20px;
-      margin: 0 10px;
-    }
+        input[type="text"], input[type="number"], select {
+            padding: 12px;
+            border: 1px solid #444;
+            border-radius: 10px;
+            flex: 1;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: #333;
+            color: #eee;
+        }
 
-    .btn-primary {
-      background-color: #007bff;
-      border-color: #007bff;
-    }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: #ff0080;
+            box-shadow: 0 0 8px rgba(255, 0, 128, 0.6);
+            outline: none;
+        }
 
-    .btn-primary:hover {
-      background-color: #0056b3;
-      border-color: #0056b3;
-    }
+        button {
+            padding: 12px;
+            border: none;
+            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .btn-danger {
-      background-color: #dc3545;
-      border-color: #dc3545;
-    }
+        button:hover {
+            background: linear-gradient(135deg, #ff0080, #e65c00);
+            transform: scale(1.05);
+        }
 
-    .btn-danger:hover {
-      background-color: #c82333;
-      border-color: #bd2130;
-    }
+        .habit-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
 
-    .btn-success {
-      background-color: #28a745;
-      border-color: #28a745;
-    }
+        #habitList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-    .btn-success:hover {
-      background-color: #218838;
-      border-color: #1e7e34;
-    }
+        .habit-item {
+            background: linear-gradient(145deg, #333, #444);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInUp 0.6s forwards;
+        }
 
-    .btn-secondary {
-      background-color: #6c757d;
-      border-color: #6c757d;
-    }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    .btn-secondary:hover {
-      background-color: #5a6268;
-      border-color: #545b62;
-    }
+        .habit-item span {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            color: #eee;
+        }
 
-    .btn-warning {
-      background-color: #ffc107;
-      border-color: #ffc107;
-    }
+        .habit-item button {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
 
-    .btn-warning:hover {
-      background-color: #e0a800;
-      border-color: #d39e00;
-    }
+        .habit-item button:hover {
+            background: linear-gradient(135deg, #c82333, #d9534f);
+            transform: scale(1.05);
+        }
 
-    .activity-list {
-      margin-top: 30px;
-      text-align: left;
-    }
+        #successMessage, #copyMessage {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            font-size: 18px;
+            font-weight: 500;
+        }
 
-    .activity-item {
-      margin-bottom: 10px;
-      padding: 10px;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
+        #successMessage {
+            top: 10%;
+            background: linear-gradient(135deg, #28a745, #2ecc71);
+        }
 
-    .activity-item:not(:last-child) {
-      margin-bottom: 15px;
-    }
+        #copyMessage {
+            bottom: 20px;
+            background: linear-gradient(135deg, #007bff, #00d2ff);
+        }
 
-    .modal-body {
-      text-align: left;
-    }
-  </style>
+        #successMessage.show, #copyMessage.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
 </head>
 <body>
-
-  <div class="container">
-    <h1 class="animate__animated animate__zoomInDown">Gestor Pomodoro</h1>
-
-    <!-- Formulario de Pomodoro -->
-    <div class="card">
-      <div class="card-header">
-        Configuración del Pomodoro
-      </div>
-      <div class="card-body">
-        <form id="pomodoroForm">
-          <div class="form-group">
-            <label for="pomodoroTime">Tiempo del Pomodoro (minutos):</label>
-            <input type="number" class="form-control" id="pomodoroTime" min="1" required>
-          </div>
-          <div class="form-group">
-            <label for="pomodoroPurpose">Para qué es este Pomodoro:</label>
-            <input type="text" class="form-control" id="pomodoroPurpose" required>
-          </div>
-          <button type="submit" class="btn btn-primary"><i class="fas fa-play"></i> iniciar</button>
+    <div class="container">
+        <h1><i class="fas fa-calendar-check"></i> Mi Registro de Hábitos</h1>
+        <form id="habitForm">
+            <input type="text" id="habitInput" placeholder="Nuevo hábito..." required>
+            <div class="input-group">
+                <input type="number" id="timeValue" placeholder="Duración" required>
+                <select id="timeUnit">
+                    <option value="minutos">Minutos</option>
+                    <option value="horas">Horas</option>
+                </select>
+            </div>
+            <button type="submit"><i class="fas fa-plus"></i> Añadir</button>
         </form>
-      </div>
+        <div class="habit-container">
+            <ul id="habitList"></ul>
+        </div>
+        <button id="copyButton"><i class="fas fa-copy"></i> Copiar Registros</button>
     </div>
 
-    <!-- Temporizador Pomodoro -->
-    <div class="card mt-4">
-      <div class="card-header">
-        Temporizador
-      </div>
-      <div class="card-body">
-        <div class="timer-container">
-          <div id="timer" class="timer">25:00</div>
-          <div class="circle animate" id="circle"></div>
-        </div>
-
-        <div>
-          <button id="shortBreak" class="btn btn-success"><i class="fas fa-coffee"></i> </button>
-          <button id="longBreak" class="btn btn-danger"><i class="fas fa-mug-hot"></i> </button>
-          <button id="resetTimer" class="btn btn-secondary"><i class="fas fa-redo"></i> </button>
-        </div>
-      </div>
+    <div id="successMessage">
+        <p>¡Buen trabajo! Hábito registrado.</p>
     </div>
 
-    <!-- Lista de Actividades -->
-    <div class="card mt-4">
-      <div class="card-header">
-        Registros de Actividades
-      </div>
-      <div class="card-body">
-        <div id="activityLog" class="activity-list">
-          <!-- Aquí se mostrarán los registros de actividades -->
-        </div>
-        <button id="clearAllLog" class="btn btn-warning mt-3"><i class="fas fa-trash-alt"></i> </button>
-        <button id="copyLogs" class="btn btn-info mt-3"><i class="fas fa-copy"></i> </button>
-      </div>
-    </div>
+    <div id="copyMessage">Registros copiados al portapapeles.</div>
 
-    <!-- Modal para mostrar detalles del Pomodoro -->
-    <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="detailsModalLabel">Detalles del Pomodoro</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body" id="modalBody">
-            <!-- Contenido dinámico generado por JavaScript -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const habitForm = document.getElementById('habitForm');
+            const habitInput = document.getElementById('habitInput');
+            const timeValue = document.getElementById('timeValue');
+            const timeUnit = document.getElementById('timeUnit');
+            const habitList = document.getElementById('habitList');
+            const successMessage = document.getElementById('successMessage');
+            const copyButton = document.getElementById('copyButton');
+            const copyMessage = document.getElementById('copyMessage');
 
-  <!-- Audio para notificación -->
-  <audio id="notificationSound">
-    <source src="sonido.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
+            // Cargar hábitos desde localStorage
+            loadHabits();
 
-  <!-- Bootstrap JS y Custom JS -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script>
-    let interval;
-    let time = 25 * 60; // Tiempo inicial en segundos
+            // Manejar el envío del formulario
+            habitForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const habitText = habitInput.value.trim();
+                const time = timeValue.value.trim();
+                const unit = timeUnit.value;
 
-    // Verifica si localStorage tiene activityLog y cárgalo
-    if (localStorage.getItem('activityLog')) {
-      displayActivityLog();
-    }
+                if (habitText && time) {
+                    const habit = {
+                        text: habitText,
+                        time: `${time} ${unit}`,
+                        timestamp: new Date().toLocaleString()
+                    };
+                    addHabit(habit);
+                    saveHabit(habit);
+                    habitInput.value = '';
+                    timeValue.value = '';
+                    showSuccessMessage();
+                }
+            });
 
-    // Función para iniciar el temporizador
-    function startTimer(duration, purpose) {
-      let timerDisplay = document.getElementById('timer');
-      let circle = document.getElementById('circle');
-      let totalTime = duration;
-      let minutes, seconds;
+            // Añadir hábito a la lista
+            function addHabit(habit) {
+                const li = document.createElement('li');
+                li.classList.add('habit-item');
+                li.innerHTML = `
+                    <span>${habit.text} <small>(Duración: ${habit.time})</small><br><small>${habit.timestamp}</small></span>
+                    <button onclick="removeHabit(this)"><i class="fas fa-trash"></i></button>
+                `;
+                habitList.insertBefore(li, habitList.firstChild); // Añadir al inicio de la lista
+            }
 
-      interval = setInterval(function () {
-        minutes = parseInt(duration / 60, 10);
-        seconds = parseInt(duration % 60, 10);
+            // Guardar hábito en localStorage
+            function saveHabit(habit) {
+                const habits = getHabits();
+                habits.unshift(habit); // Añadir al inicio para que los más recientes estén primero
+                localStorage.setItem('habits', JSON.stringify(habits));
+            }
 
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
+            // Obtener hábitos desde localStorage
+            function getHabits() {
+                return JSON.parse(localStorage.getItem('habits')) || [];
+            }
 
-        timerDisplay.textContent = minutes + ":" + seconds;
+            // Cargar hábitos al inicio
+            function loadHabits() {
+                const habits = getHabits();
+                habits.forEach(addHabit);
+            }
 
-        circle.style.animationDuration = totalTime + 's';
+            // Eliminar hábito
+            window.removeHabit = function(button) {
+                const li = button.parentElement;
+                const text = li.querySelector('span').textContent.split(' (')[0];
+                li.remove();
+                let habits = getHabits();
+                habits = habits.filter(habit => habit.text !== text);
+                localStorage.setItem('habits', JSON.stringify(habits));
+            }
 
-        if (--duration < 0) {
-          clearInterval(interval);
-          saveActivityLog(purpose);
-          showDetailsModal(purpose, time - duration);
-          
-        }
-      }, 1000);
-    }
+            // Mostrar mensaje de éxito
+            function showSuccessMessage() {
+                successMessage.classList.add('show');
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 2000);
+            }
 
-    // Función para guardar registros de actividad en localStorage y mostrar en la interfaz
-    function saveActivityLog(purpose) {
-      let activityLog = localStorage.getItem('activityLog') || '';
-      let currentTime = new Date().toLocaleString();
-      let logText = `${currentTime}: ${purpose}`;
-      activityLog = logText + "\n" + activityLog;
+            // Copiar registros al portapapeles
+            copyButton.addEventListener('click', function() {
+                const habits = getHabits();
+                const textToCopy = habits.map(habit => `${habit.text}\nDuración: ${habit.time}\nFecha: ${habit.timestamp}`).join('\n\n');
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        showCopyMessage();
+                    })
+                    .catch(err => console.error('Error al copiar:', err));
+            });
 
-      localStorage.setItem('activityLog', activityLog);
-      displayActivityLog(); // Mostrar el registro actualizado
-    }
-
-    // Función para mostrar el modal con detalles del Pomodoro
-    function showDetailsModal(purpose, duration) {
-      let modalBody = document.getElementById('modalBody');
-      modalBody.innerHTML = `
-        <p><strong>Propósito:</strong> ${purpose}</p>
-        <p><strong>Duración:</strong> ${Math.floor(duration / 60)} minutos ${duration % 60} segundos</p>
-        <p><strong>Fecha:</strong> ${new Date().toLocaleString()}</p>
-      `;
-
-      $('#detailsModal').modal('show'); // Mostrar el modal usando jQuery
-
-      // Reproducir sonido de notificación
-      document.getElementById('notificationSound').play();
-    }
-
-    // Función para mostrar los registros de actividades almacenados en localStorage
-    function displayActivityLog() {
-      let activityLog = localStorage.getItem('activityLog') || '';
-      let logContainer = document.getElementById('activityLog');
-      let logEntries = activityLog.split("\n");
-
-      // Limpiar contenedor antes de mostrar nuevos registros
-      logContainer.innerHTML = '';
-
-      // Mostrar cada registro como un elemento separado
-      logEntries.forEach(entry => {
-        if (entry.trim() !== '') {
-          let logItem = document.createElement('div');
-          logItem.classList.add('activity-item');
-          logItem.textContent = entry.trim();
-          logContainer.appendChild(logItem);
-        }
-      });
-    }
-
-    // Event listener para el formulario de Pomodoro
-    document.getElementById('pomodoroForm').addEventListener('submit', function (event) {
-      event.preventDefault();
-      let pomodoroTime = parseInt(document.getElementById('pomodoroTime').value, 10);
-      let pomodoroPurpose = document.getElementById('pomodoroPurpose').value.trim();
-
-      if (isNaN(pomodoroTime) || pomodoroTime <= 0 || pomodoroPurpose === '') {
-        alert("Por favor ingresa un tiempo válido y un propósito.");
-        return;
-      }
-
-      clearInterval(interval);
-      time = pomodoroTime * 60;
-      startTimer(time, pomodoroPurpose);
-
-      // Limpiar campos del formulario
-      document.getElementById('pomodoroTime').value = '';
-      document.getElementById('pomodoroPurpose').value = '';
-    });
-
-    // Event listener para botón de Descanso Corto
-    document.getElementById('shortBreak').addEventListener('click', function () {
-      clearInterval(interval);
-      time = 5 * 60;
-      startTimer(time, "Descanso corto");
-    });
-
-    // Event listener para botón de Descanso Largo
-    document.getElementById('longBreak').addEventListener('click', function () {
-      clearInterval(interval);
-      time = 15 * 60;
-      startTimer(time, "Descanso largo");
-    });
-
-    // Event listener para botón de Reiniciar Timer
-    document.getElementById('resetTimer').addEventListener('click', function () {
-      clearInterval(interval);
-      time = 25 * 60;
-      document.getElementById('timer').textContent = "25:00";
-    });
-
-    // Event listener para borrar todo el registro de actividades con confirmación
-    document.getElementById('clearAllLog').addEventListener('click', function () {
-      if (confirm("¿Estás seguro de borrar todos los registros?")) {
-        localStorage.removeItem('activityLog');
-        displayActivityLog(); // Actualizar la interfaz después de borrar
-      }
-    });
-
-    // Event listener para copiar los registros de actividades
-    document.getElementById('copyLogs').addEventListener('click', function () {
-      let activityLog = localStorage.getItem('activityLog') || '';
-      navigator.clipboard.writeText(activityLog)
-        .then(() => alert("Registros copiados al portapapeles."))
-        .catch(err => console.error('Error al copiar registros:', err));
-    });
-  </script>
+            // Mostrar mensaje de copia
+            function showCopyMessage() {
+                copyMessage.classList.add('show');
+                setTimeout(() => {
+                    copyMessage.classList.remove('show');
+                }, 2000);
+            }
+        });
+    </script>
 </body>
 </html>
-jmv9
