@@ -26,8 +26,9 @@
             max-width: 600px;
             width: 100%;
             box-sizing: border-box;
-            transform: scale(1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .container:hover {
@@ -62,20 +63,19 @@
         .input-group {
             display: flex;
             gap: 12px;
-            align-items: center;
         }
 
-        input[type="text"], input[type="number"], select {
+        input, select {
             padding: 12px;
             border: 1px solid #444;
             border-radius: 10px;
             flex: 1;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
             background: #333;
             color: #eee;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+        input:focus, select:focus {
             border-color: #ff0080;
             box-shadow: 0 0 8px rgba(255, 0, 128, 0.6);
             outline: none;
@@ -89,7 +89,6 @@
             border-radius: 10px;
             cursor: pointer;
             transition: background 0.3s ease, transform 0.2s ease;
-            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -104,13 +103,14 @@
             max-height: 300px;
             overflow-y: auto;
             margin-bottom: 20px;
-            padding-right: 10px;
         }
 
         #habitList {
             list-style: none;
             padding: 0;
             margin: 0;
+            display: flex;
+            flex-direction: column-reverse;
         }
 
         .habit-item {
@@ -122,7 +122,6 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            position: relative;
             opacity: 0;
             transform: translateY(-20px);
             animation: fadeInUp 0.6s forwards;
@@ -139,7 +138,6 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
-            flex: 1;
             color: #eee;
         }
 
@@ -151,9 +149,6 @@
             cursor: pointer;
             padding: 8px;
             font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             transition: background 0.3s ease, transform 0.2s ease;
         }
 
@@ -191,7 +186,22 @@
         #successMessage.show, #copyMessage.show {
             opacity: 1;
             visibility: visible;
-            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 600px) {
+            form {
+                flex-direction: column;
+            }
+
+            .input-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -215,112 +225,79 @@
         <button id="copyButton"><i class="fas fa-copy"></i> Copiar Registros</button>
     </div>
 
-    <div id="successMessage">
-        <p>¡Buen trabajo! Hábito registrado.</p>
-    </div>
-
+    <div id="successMessage"><p>¡Buen trabajo! Hábito registrado.</p></div>
     <div id="copyMessage">Registros copiados al portapapeles.</div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const habitForm = document.getElementById('habitForm');
-            const habitInput = document.getElementById('habitInput');
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('habitForm');
+            const input = document.getElementById('habitInput');
             const timeValue = document.getElementById('timeValue');
             const timeUnit = document.getElementById('timeUnit');
             const habitList = document.getElementById('habitList');
             const successMessage = document.getElementById('successMessage');
-            const copyButton = document.getElementById('copyButton');
             const copyMessage = document.getElementById('copyMessage');
 
-            // Cargar hábitos desde localStorage
-            loadHabits();
+            const getHabits = () => JSON.parse(localStorage.getItem('habits')) || [];
+            const saveHabit = habit => {
+                const habits = getHabits();
+                habits.unshift(habit);
+                localStorage.setItem('habits', JSON.stringify(habits));
+            };
+            const loadHabits = () => {
+                habitList.innerHTML = '';  // Clear the list before adding
+                getHabits().forEach(addHabit);
+            };
 
-            // Manejar el envío del formulario
-            habitForm.addEventListener('submit', function(event) {
+            const addHabit = ({text, time, timestamp}) => {
+                const li = document.createElement('li');
+                li.className = 'habit-item';
+                li.innerHTML = `
+                    <span>${text} <small>(Duración: ${time})</small><br><small>${timestamp}</small></span>
+                    <button onclick="removeHabit(this)"><i class="fas fa-trash"></i></button>
+                `;
+                habitList.insertBefore(li, habitList.firstChild);  // Add new habit at the start
+            };
+
+            form.addEventListener('submit', event => {
                 event.preventDefault();
-                const habitText = habitInput.value.trim();
-                const time = timeValue.value.trim();
-                const unit = timeUnit.value;
-
-                if (habitText && time) {
-                    const habit = {
-                        text: habitText,
-                        time: `${time} ${unit}`,
-                        timestamp: new Date().toLocaleString()
-                    };
+                const text = input.value.trim();
+                const time = `${timeValue.value.trim()} ${timeUnit.value}`;
+                if (text && time) {
+                    const habit = { text, time, timestamp: new Date().toLocaleString() };
                     addHabit(habit);
                     saveHabit(habit);
-                    habitInput.value = '';
-                    timeValue.value = '';
+                    input.value = timeValue.value = '';
                     showSuccessMessage();
                 }
             });
 
-            // Añadir hábito a la lista
-            function addHabit(habit) {
-                const li = document.createElement('li');
-                li.classList.add('habit-item');
-                li.innerHTML = `
-                    <span>${habit.text} <small>(Duración: ${habit.time})</small><br><small>${habit.timestamp}</small></span>
-                    <button onclick="removeHabit(this)"><i class="fas fa-trash"></i></button>
-                `;
-                habitList.insertBefore(li, habitList.firstChild); // Añadir al inicio de la lista
-            }
-
-            // Guardar hábito en localStorage
-            function saveHabit(habit) {
-                const habits = getHabits();
-                habits.unshift(habit); // Añadir al inicio para que los más recientes estén primero
-                localStorage.setItem('habits', JSON.stringify(habits));
-            }
-
-            // Obtener hábitos desde localStorage
-            function getHabits() {
-                return JSON.parse(localStorage.getItem('habits')) || [];
-            }
-
-            // Cargar hábitos al inicio
-            function loadHabits() {
-                const habits = getHabits();
-                habits.forEach(addHabit);
-            }
-
-            // Eliminar hábito
-            window.removeHabit = function(button) {
+            window.removeHabit = button => {
                 const li = button.parentElement;
                 const text = li.querySelector('span').textContent.split(' (')[0];
                 li.remove();
-                let habits = getHabits();
-                habits = habits.filter(habit => habit.text !== text);
+                const habits = getHabits().filter(habit => habit.text !== text);
                 localStorage.setItem('habits', JSON.stringify(habits));
-            }
+            };
 
-            // Mostrar mensaje de éxito
-            function showSuccessMessage() {
-                successMessage.classList.add('show');
-                setTimeout(() => {
-                    successMessage.classList.remove('show');
-                }, 2000);
-            }
-
-            // Copiar registros al portapapeles
-            copyButton.addEventListener('click', function() {
-                const habits = getHabits();
-                const textToCopy = habits.map(habit => `${habit.text}\nDuración: ${habit.time}\nFecha: ${habit.timestamp}`).join('\n\n');
-                navigator.clipboard.writeText(textToCopy)
-                    .then(() => {
-                        showCopyMessage();
-                    })
+            document.getElementById('copyButton').addEventListener('click', () => {
+                const text = getHabits().map(h => `${h.text}\nDuración: ${h.time}\nFecha: ${h.timestamp}`).join('\n\n');
+                navigator.clipboard.writeText(text)
+                    .then(showCopyMessage)
                     .catch(err => console.error('Error al copiar:', err));
             });
 
-            // Mostrar mensaje de copia
-            function showCopyMessage() {
+            const showSuccessMessage = () => {
+                successMessage.classList.add('show');
+                setTimeout(() => successMessage.classList.remove('show'), 2000);
+            };
+
+            const showCopyMessage = () => {
                 copyMessage.classList.add('show');
-                setTimeout(() => {
-                    copyMessage.classList.remove('show');
-                }, 2000);
-            }
+                setTimeout(() => copyMessage.classList.remove('show'), 2000);
+            };
+
+            loadHabits();
         });
     </script>
 </body>
