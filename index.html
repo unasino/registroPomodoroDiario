@@ -25,10 +25,7 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
             max-width: 600px;
             width: 100%;
-            box-sizing: border-box;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
         }
 
         .container:hover {
@@ -69,7 +66,6 @@
             padding: 12px;
             border: 1px solid #444;
             border-radius: 10px;
-            flex: 1;
             background: #333;
             color: #eee;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -128,16 +124,10 @@
         }
 
         @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .habit-item span {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
             color: #eee;
         }
 
@@ -161,7 +151,6 @@
             position: fixed;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, #ff0080, #ff8c00);
             color: white;
             padding: 15px 25px;
             border-radius: 10px;
@@ -188,6 +177,12 @@
             visibility: visible;
         }
 
+        #importSection {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
         @media (max-width: 600px) {
             form {
                 flex-direction: column;
@@ -201,6 +196,10 @@
             button {
                 font-size: 14px;
                 padding: 10px;
+            }
+
+            #importSection {
+                flex-direction: column;
             }
         }
     </style>
@@ -222,6 +221,11 @@
         <div class="habit-container">
             <ul id="habitList"></ul>
         </div>
+        <div id="importSection">
+            <button id="exportButton"><i class="fas fa-file-export"></i> Exportar JSON</button>
+            <input type="file" id="importFile" accept=".json">
+            <button id="importButton"><i class="fas fa-file-import"></i> Importar JSON</button>
+        </div>
         <button id="copyButton"><i class="fas fa-copy"></i> Copiar Registros</button>
     </div>
 
@@ -237,6 +241,9 @@
             const habitList = document.getElementById('habitList');
             const successMessage = document.getElementById('successMessage');
             const copyMessage = document.getElementById('copyMessage');
+            const exportButton = document.getElementById('exportButton');
+            const importFile = document.getElementById('importFile');
+            const importButton = document.getElementById('importButton');
 
             const getHabits = () => JSON.parse(localStorage.getItem('habits')) || [];
             const saveHabit = habit => {
@@ -245,7 +252,7 @@
                 localStorage.setItem('habits', JSON.stringify(habits));
             };
             const loadHabits = () => {
-                habitList.innerHTML = '';  // Clear the list before adding
+                habitList.innerHTML = '';
                 getHabits().forEach(addHabit);
             };
 
@@ -256,7 +263,7 @@
                     <span>${text} <small>(Duración: ${time})</small><br><small>${timestamp}</small></span>
                     <button onclick="removeHabit(this)"><i class="fas fa-trash"></i></button>
                 `;
-                habitList.insertBefore(li, habitList.firstChild);  // Add new habit at the start
+                habitList.insertBefore(li, habitList.firstChild);
             };
 
             form.addEventListener('submit', event => {
@@ -296,6 +303,38 @@
                 copyMessage.classList.add('show');
                 setTimeout(() => copyMessage.classList.remove('show'), 2000);
             };
+
+            // Export habits as JSON
+            exportButton.addEventListener('click', () => {
+                const habits = getHabits();
+                const blob = new Blob([JSON.stringify(habits, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'habits.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            // Import habits from JSON file
+            importButton.addEventListener('click', () => {
+                const file = importFile.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const importedHabits = JSON.parse(event.target.result);
+                            localStorage.setItem('habits', JSON.stringify(importedHabits));
+                            loadHabits();
+                        } catch (error) {
+                            console.error('Error al importar el archivo JSON:', error);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
 
             loadHabits();
         });
