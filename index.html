@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Hábitos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+      body {
+          font-family: 'Roboto', sans-serif;
+          background: linear-gradient(135deg, #2e003e, #4a148c);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          margin: 0;
+          padding: 20px;
+          overflow: hidden;
+      }
+
+      .container {
+          background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
+          padding: 20px;
+          border-radius: 20px;
+          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+          max-width: 600px;
+          width: 100%;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .container:hover {
+          transform: scale(1.02);
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+      }
+
+      h1 {
+          text-align: center;
+          color: #e0e0e0;
+          margin-bottom: 20px;
+          font-size: 28px;
+          font-weight: 700;
+          background: linear-gradient(90deg, #ff0080, #ff8c00);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: textGradient 4s infinite linear;
+      }
+
+      @keyframes textGradient {
+          0% { background-position: 0% 0%; }
+          100% { background-position: 100% 100%; }
+      }
+
+      form {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-bottom: 20px;
+      }
+
+      .input-group {
+          display: flex;
+          gap: 12px;
+      }
+
+      input, select {
+          padding: 12px;
+          border: 1px solid #444;
+          border-radius: 10px;
+          background: #333;
+          color: #eee;
+          transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      input:focus, select:focus {
+          border-color: #ff0080;
+          box-shadow: 0 0 8px rgba(255, 0, 128, 0.6);
+          outline: none;
+      }
+
+      button {
+          padding: 12px;
+          border: none;
+          background: linear-gradient(135deg, #ff0080, #ff8c00);
+          color: white;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: background 0.3s ease, transform 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+
+      button:hover {
+          background: linear-gradient(135deg, #ff0080, #e65c00);
+          transform: scale(1.05);
+      }
+
+      .habit-container {
+          max-height: 300px;
+          overflow-y: auto;
+          margin-bottom: 20px;
+      }
+
+      #habitList {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column-reverse;
+      }
+
+      .habit-item {
+          background: linear-gradient(145deg, #333, #444);
+          margin: 10px 0;
+          padding: 15px;
+          border-radius: 12px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+          opacity: 0;
+          transform: translateY(-20px);
+          animation: fadeInUp 0.6s forwards;
+      }
+
+      @keyframes fadeInUp {
+          to { opacity: 1; transform: translateY(0); }
+      }
+
+      .habit-item span {
+          color: #eee;
+      }
+
+      .habit-item button {
+          background: linear-gradient(135deg, #dc3545, #e74c3c);
+          border: none;
+          color: white;
+          border-radius: 8px;
+          cursor: pointer;
+          padding: 8px;
+          font-size: 14px;
+          transition: background 0.3s ease, transform 0.2s ease;
+      }
+
+      .habit-item button:hover {
+          background: linear-gradient(135deg, #c82333, #d9534f);
+          transform: scale(1.05);
+      }
+
+      #successMessage, #copyMessage {
+          position: fixed;
+          left: 50%;
+          transform: translateX(-50%);
+          color: white;
+          padding: 15px 25px;
+          border-radius: 10px;
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 0.3s ease, transform 0.3s ease;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          font-size: 18px;
+          font-weight: 500;
+      }
+
+      #successMessage {
+          top: 10%;
+          background: linear-gradient(135deg, #28a745, #2ecc71);
+      }
+
+      #copyMessage {
+          bottom: 20px;
+          background: linear-gradient(135deg, #007bff, #00d2ff);
+      }
+
+      #successMessage.show, #copyMessage.show {
+          opacity: 1;
+          visibility: visible;
+      }
+
+      #importSection {
+          display: flex;
+          gap: 10px;
+          margin-top: 20px;
+      }
+
+      @media (max-width: 600px) {
+          form {
+              flex-direction: column;
+          }
+
+          .input-group {
+              flex-direction: column;
+              gap: 8px;
+          }
+
+          button {
+              font-size: 14px;
+              padding: 10px;
+          }
+
+          #importSection {
+              flex-direction: column;
+          }
+      }
+  </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-calendar-check"></i> Mi Registro de Hábitos</h1>
+        <form id="habitForm">
+            <input type="text" id="habitInput" placeholder="Nuevo hábito..." required>
+            <div class="input-group">
+                <input type="number" id="timeValue" placeholder="Duración" required>
+                <select id="timeUnit">
+                    <option value="minutos">Minutos</option>
+                    <option value="horas">Horas</option>
+                </select>
+            </div>
+            <button type="submit"><i class="fas fa-plus"></i> Añadir</button>
+        </form>
+        <div class="habit-container">
+            <ul id="habitList"></ul>
+        </div>
+        <div id="importSection">
+            <button id="exportButton"><i class="fas fa-file-export"></i> Exportar a SheetDB</button>
+            <button id="importButton"><i class="fas fa-file-import"></i> Importar de SheetDB</button>
+        </div>
+        <button id="copyButton"><i class="fas fa-copy"></i> Copiar Registros</button>
+    </div>
+
+    <div id="successMessage"><p>¡Buen trabajo! Hábito registrado.</p></div>
+    <div id="copyMessage">Registros copiados al portapapeles.</div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          const API_URL = 'https://sheetdb.io/api/v1/303bonwianpgs'; // Reemplaza con tu ID de SheetDB
+          const RECORD_ID = 1; // ID del registro a actualizar/obtener
+          const form = document.getElementById('habitForm');
+          const input = document.getElementById('habitInput');
+          const timeValue = document.getElementById('timeValue');
+          const timeUnit = document.getElementById('timeUnit');
+          const habitList = document.getElementById('habitList');
+          const successMessage = document.getElementById('successMessage');
+          const copyMessage = document.getElementById('copyMessage');
+          const exportButton = document.getElementById('exportButton');
+          const importButton = document.getElementById('importButton');
+  
+          const getHabits = () => JSON.parse(localStorage.getItem('habits')) || [];
+          const saveHabit = habit => {
+              const habits = getHabits();
+              habits.unshift(habit);
+              localStorage.setItem('habits', JSON.stringify(habits));
+          };
+          const loadHabits = () => {
+              habitList.innerHTML = '';
+              getHabits().forEach(addHabit);
+          };
+  
+          const addHabit = ({text, time, timestamp}) => {
+              const li = document.createElement('li');
+              li.className = 'habit-item';
+              li.innerHTML = `
+                  <span>${text} <small>(Duración: ${time})</small><br><small>${timestamp}</small></span>
+                  <button onclick="removeHabit(this)"><i class="fas fa-trash"></i></button>
+              `;
+              habitList.insertBefore(li, habitList.firstChild);
+          };
+  
+          form.addEventListener('submit', event => {
+              event.preventDefault();
+              const text = input.value.trim();
+              const time = `${timeValue.value.trim()} ${timeUnit.value}`;
+              if (text && time) {
+                  const habit = { text, time, timestamp: new Date().toLocaleString() };
+                  addHabit(habit);
+                  saveHabit(habit);
+                  input.value = timeValue.value = '';
+                  showSuccessMessage();
+              }
+          });
+  
+          window.removeHabit = button => {
+              const li = button.parentElement;
+              const text = li.querySelector('span').textContent.split(' (')[0];
+              li.remove();
+              const habits = getHabits().filter(habit => habit.text !== text);
+              localStorage.setItem('habits', JSON.stringify(habits));
+          };
+  
+          document.getElementById('copyButton').addEventListener('click', () => {
+              const text = getHabits().map(h => `${h.text}\nDuración: ${h.time}\nFecha: ${h.timestamp}`).join('\n\n');
+              navigator.clipboard.writeText(text)
+                  .then(showCopyMessage)
+                  .catch(err => console.error('Error al copiar:', err));
+          });
+  
+          const showSuccessMessage = () => {
+              successMessage.classList.add('show');
+              setTimeout(() => successMessage.classList.remove('show'), 2000);
+          };
+  
+          const showCopyMessage = () => {
+              copyMessage.classList.add('show');
+              setTimeout(() => copyMessage.classList.remove('show'), 2000);
+          };
+  
+          // Export habits to SheetDB
+          exportButton.addEventListener('click', async () => {
+              const habits = getHabits();
+              const jsonData = { data: [{ "data": JSON.stringify(habits) }] };
+              try {
+                  const response = await fetch(`${API_URL}/id/${RECORD_ID}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(jsonData)
+                  });
+  
+                  if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+  
+                  const result = await response.json();
+                  if (result.updated) {
+                      alert('Hábitos exportados y actualizados en SheetDB exitosamente.');
+                  } else {
+                      alert('No se pudo actualizar los datos en SheetDB.');
+                  }
+              } catch (error) {
+                  alert('Error al exportar datos: ' + error.message);
+              }
+          });
+  
+          // Import habits from SheetDB
+          importButton.addEventListener('click', async () => {
+              try {
+                  const response = await fetch(`${API_URL}/search?id=${RECORD_ID}`);
+                  if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+  
+                  const data = await response.json();
+                  if (data.length > 0) {
+                      const habits = JSON.parse(data[0].data);
+                      localStorage.setItem('habits', JSON.stringify(habits));
+                      loadHabits();
+                      alert('Hábitos importados exitosamente desde SheetDB.');
+                  } else {
+                      alert('No se encontró ningún dato en SheetDB.');
+                  }
+              } catch (error) {
+                  alert('Error al importar datos: ' + error.message);
+              }
+          });
+  
+          loadHabits();
+      });
+  </script>
+  
+</body>
+</html>
